@@ -9,10 +9,10 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 # cpp / tmux / .zshrc / .vimrc / omz plugins
 mkdir ~/cpp && \
-   wget -O ~/.tmux.conf https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.tmux.conf && \
-   wget -O ~/.zshrc https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.zshrc && \
-   wget -O ~/.privrc https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.privrc && \
-   wget -O ~/cpp/cpp.conf https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/cpp/cpp.conf && \
+   wget -O ~/cpp/cpp.conf https://github.com/ntrrpt/dot/raw/refs/heads/main/cpp/cpp.conf && \
+   wget -O ~/.tmux.conf https://github.com/ntrrpt/dot/raw/refs/heads/main/.tmux.conf && \
+   wget -O ~/.zshrc https://github.com/ntrrpt/dot/raw/refs/heads/main/.zshrc && \
+   wget -O ~/.privrc https://github.com/ntrrpt/dot/raw/refs/heads/main/.privrc && \
    git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime && sh ~/.vim_runtime/install_awesome_vimrc.sh && \
    git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/F-Sy-H && \
    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
@@ -52,9 +52,9 @@ EOF
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # tmux / .zshrc / .vimrc / omz plugins
-wget -O ~/.tmux.conf https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.tmux.conf && \
-   wget -O ~/.zshrc https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.zshrc && \
-   wget -O ~/.privrc https://github.com/ntrrpt/misc/raw/refs/heads/main/dot/.privrc && \
+wget -O ~/.tmux.conf https://github.com/ntrrpt/dot/raw/refs/heads/main/.tmux.conf && \
+   wget -O ~/.zshrc https://github.com/ntrrpt/dot/raw/refs/heads/main/.zshrc && \
+   wget -O ~/.privrc https://github.com/ntrrpt/dot/raw/refs/heads/main/.privrc && \
    git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime && sh ~/.vim_runtime/install_awesome_vimrc.sh && \
    git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/F-Sy-H && \
    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
