@@ -1,0 +1,4 @@
+# termux
+alias cop="copyparty -c ~/cpp/cpp.conf"
+alias frp="frpc -c ~/frpc.toml"
+alias av='sudo avahi-daemon'
