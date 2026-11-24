@@ -36,6 +36,7 @@ alias myip='curl http://ipecho.net/plain; echo'
 alias fp="ping 8.8.8.8"
 
 alias lsd='lazydocker'
+alias lzd='lazydocker'
 alias pro='proxychains'
 alias a='tmux attach -t main || tmux new -s main'
 alias b='byobu'
