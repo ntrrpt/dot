@@ -102,7 +102,7 @@ dectar() {
     if [[ -f "$input" ]]; then
         age -d -i "$key" "$input" | tar -xv
     else
-        cat "${input}"* | age -d -i "$key" | tar -xv
+        cat "${input}"* | age -d -i "$key" | tar -xvz
     fi
 }
 
