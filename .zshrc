@@ -1,4 +1,4 @@
-### Set variables
+### variables
 #################
 export PATH=$PATH:/usr/local/bin:$HOME/.local/bin:$HOME/bin:$HOME/.cargo/bin:$HOME/go/bin
 export ZSH="$HOME/.oh-my-zsh"
@@ -9,9 +9,16 @@ LS_COLORS='rs=0:di=01;34:ln=01;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;3
 ZSH_THEME="junkfood" #( 09/24/25@ 8:37PM )( u0_a246@localhost ):~
 plugins=(sudo extract fzf zsh-autosuggestions F-Sy-H git universalarchive poetry docker docker-compose uv)
 
+command -v pv >/dev/null 2>&1 && \
+    PIPE="pv" || PIPE="cat"
+
+command -v eza >/dev/null 2>&1 && \
+    LS="eza" ARGS="--color=always --group-directories-first --icons auto" || \
+    LS="ls" ARGS=""
+
 source $ZSH/oh-my-zsh.sh
 
-### Set alias
+### aliases
 #############
 alias ..="cd .."
 alias cd..="cd .."
@@ -40,15 +47,12 @@ alias pro='proxychains'
 alias a='tmux attach -t main || tmux new -s main'
 alias b='byobu'
 
-alias ar50='aria2c --seed-time=0 --max-overall-download-limit=50M -Z'
-alias ar40='aria2c --seed-time=0 --max-overall-download-limit=40M -Z'
-alias ar20='aria2c --seed-time=0 --max-overall-download-limit=20M -Z'
-alias ar10='aria2c --seed-time=0 --max-overall-download-limit=10M -Z'
-alias  ar5='aria2c --seed-time=0 --max-overall-download-limit=5M -Z'
-
-command -v eza >/dev/null 2>&1 && \
-    LS="eza" ARGS="--color=always --group-directories-first --icons auto" || \
-    LS="ls" ARGS=""
+ar() { aria2c --seed-time=0 --max-overall-download-limit=$1 -Z ; }
+alias ar50='ar 50M'
+alias ar40='ar 40M'
+alias ar20='ar 20M'
+alias ar10='ar 10M'
+alias  ar5='ar 5M'
 
 alias l="$LS $ARGS"
 alias ls="$LS $ARGS -l"          # preferred listing
@@ -66,7 +70,60 @@ ff()      { find . -type f -iname '*'"$*"'*' -ls ; } # recursive ls in folder
 maketar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/" ; }
 makezip() { zip -r "${1%%/}.zip" "$1" ; }
 my_ps()   { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
-mcd ()    { mkdir -p $1 ; cd $1 ; }
+mcd()    { mkdir -p $1 ; cd $1 ; }
+
+enc() {
+    if [[ $# -lt 2 || $# -gt 4 ]]; then
+        echo "Usage: $0 <source> <pubkey> [chunk-size] [output-prefix]" >&2
+        return 1
+    fi
+
+    local source="$1"
+    local pubkey="$2"
+    local chunk_size="${3:-}"
+    local output="${4:-${source}.age}"
+
+    if [[ ! -f "$source" ]]; then
+        echo "Error: source file not found: $source" >&2
+        return 1
+    fi
+
+    if [[ -n "$chunk_size" ]]; then
+        $PIPE "$source" | age -R "$pubkey" | split --verbose -b "$chunk_size" -d -a 3 - "${output}."
+    else
+        $PIPE "$source" | age -R "$pubkey" > "$output"
+    fi
+}
+
+dec() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: dec <input> <private-key>" >&2
+        return 1
+    fi
+
+    local input="$1"
+    local key="$2"
+    local output
+    local prefix
+
+    prefix="${input%.[0-9][0-9][0-9]}"
+
+    if [[ "$prefix" == "$input" ]]; then
+        prefix="${input%.}"
+    fi
+
+    output="${prefix%.age}"
+
+    if [[ "$output" == "$prefix" ]]; then
+        output="${prefix}.decrypted"
+    fi
+
+    if [[ -f "$input" ]]; then
+        $PIPE "$input" | age -d -i "$key" > "$output"
+    else
+        $PIPE "${input}"* | age -d -i "$key" > "$output"
+    fi
+}
 
 enctar() {
     if [[ $# -lt 2 || $# -gt 4 ]]; then
@@ -80,13 +137,9 @@ enctar() {
     local output="${4:-${source}.tar.age}"
 
     if [[ -n "$chunk_size" ]]; then
-        tar -cvz "$source" \
-            | age -R "$pubkey" \
-            | split --verbose -b "$chunk_size" -d -a 3 - "${output}."
+        tar -cvz "$source" | age -R "$pubkey" | split --verbose -b "$chunk_size" -d -a 3 - "${output}."
     else
-        tar -cvz "$source" \
-            | age -R "$pubkey" \
-            > "$output"
+        tar -cvz "$source" | age -R "$pubkey" > "$output"
     fi
 }
 
@@ -106,7 +159,7 @@ dectar() {
     fi
 }
 
-### Set/unset ZSH options
+### zsh options
 #########################
 # setopt NOHUP
 # export USE_CCACHE=1
@@ -122,7 +175,7 @@ unsetopt BG_NICE
 # setopt HASH_CMDS
 setopt MENUCOMPLETE
 
-### Set/unset  shell options
+### shell options
 ############################
 #setopt   notify globdots correct pushdtohome cdablevars autolist
 #setopt   correctall autocd recexact longlistjobs
@@ -130,7 +183,7 @@ setopt   autoresume histignoredups pushdsilent
 setopt   autopushd pushdminus extendedglob rcquotes mailwarning
 unsetopt bgnice autoparamslash
 
-### Autoload zsh modules when they are referenced
+### autoload zsh modules when they are referenced
 #################################################
 autoload -U history-search-end
 zmodload -a zsh/stat stat
