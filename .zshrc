@@ -10,7 +10,6 @@ ZSH_THEME="junkfood" #( 09/24/25@ 8:37PM )( u0_a246@localhost ):~
 plugins=(sudo extract fzf zsh-autosuggestions F-Sy-H git universalarchive poetry docker docker-compose uv)
 
 source $ZSH/oh-my-zsh.sh
-[ -f ~/.privrc ] && source ~/.privrc
 
 ### Set alias
 #############
@@ -48,7 +47,8 @@ alias ar10='aria2c --seed-time=0 --max-overall-download-limit=10M -Z'
 alias  ar5='aria2c --seed-time=0 --max-overall-download-limit=5M -Z'
 
 command -v eza >/dev/null 2>&1 && \
-    LS="eza" ARGS="--color=always --group-directories-first --icons always" || LS=ls ARGS=""
+    LS="eza" ARGS="--color=always --group-directories-first --icons auto" || \
+    LS="ls" ARGS=""
 
 alias l="$LS $ARGS"
 alias ls="$LS $ARGS -l"          # preferred listing
@@ -67,6 +67,44 @@ maketar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/" ; }
 makezip() { zip -r "${1%%/}.zip" "$1" ; }
 my_ps()   { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
 mcd ()    { mkdir -p $1 ; cd $1 ; }
+
+enctar() {
+    if [[ $# -lt 2 || $# -gt 4 ]]; then
+        echo "Usage: $0 <source> <pubkey> [chunk-size] [output-prefix]" >&2
+        return 1
+    fi
+
+    local source="$1"
+    local pubkey="$2"
+    local chunk_size="${3:-}"
+    local output="${4:-${source}.tar.age}"
+
+    if [[ -n "$chunk_size" ]]; then
+        tar -cvz "$source" \
+            | age -R "$pubkey" \
+            | split --verbose -b "$chunk_size" -d -a 3 - "${output}."
+    else
+        tar -cvz "$source" \
+            | age -R "$pubkey" \
+            > "$output"
+    fi
+}
+
+dectar() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: $0 <input> <private-key>" >&2
+        return 1
+    fi
+
+    local input="$1"
+    local key="$2"
+
+    if [[ -f "$input" ]]; then
+        age -d -i "$key" "$input" | tar -xv
+    else
+        cat "${input}"* | age -d -i "$key" | tar -xv
+    fi
+}
 
 ### Set/unset ZSH options
 #########################
@@ -101,3 +139,5 @@ zmodload -a zsh/zprof zprof
 #zmodload -ap zsh/mapfile mapfile
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
+
+[ -f ~/.privrc ] && source ~/.privrc
